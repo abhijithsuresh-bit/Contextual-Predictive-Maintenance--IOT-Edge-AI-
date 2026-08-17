@@ -69,7 +69,7 @@ def converting_data_to_numeric(X_train , X_test , y_train , y_test):
 def save_data(df:pd.DataFrame , file_path):
 
     try:
-        os.makedirs(os.path.dirname(file_path))
+        os.makedirs(os.path.dirname(file_path) , exist_ok= True)
 
         df.to_csv(file_path)
 
@@ -93,11 +93,16 @@ def main():
 
         X_train , X_test = converting_data_to_numeric(X_train , X_test , y_train , y_test)
 
-        a = [X_train , X_test , y_train , y_test]
+        file_path_X_train = os.path.join("data" , "preprocessed" , "X_train.csv")
+        file_path_X_test = os.path.join("data" , "preprocessed" , "X_test.csv")
+        file_path_y_train = os.path.join("data" , "preprocessed" , "y_train.csv")
+        file_path_y_test = os.path.join("data" , "preprocessed" , "y_test.csv")
 
-        for i in a:
-            file_path = os.path.join("data" , "preprocessed" , f"{i}.csv")
-            save_data(df=i , file_path= file_path)
+        save_data(X_train , file_path_X_train)
+        save_data(X_test , file_path_X_test)
+        save_data(y_train , file_path_y_train)
+        save_data(y_test , file_path_y_test)
+
 
     except Exception as e:
         logging.info(f"Error occured {e}")
