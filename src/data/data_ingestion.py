@@ -3,7 +3,6 @@ import logging
 import pandas as pd
 import yaml
 
-from sklearn.model_selection import train_test_split
 
 
 logging.basicConfig(
@@ -45,6 +44,7 @@ def save_data(df: pd.DataFrame , file_path):
         logging.info(f"Error Occured {e}")
 
 
+
 def main():
     try:
         file_path_csv = os.path.join("ai4i2020.csv")
@@ -60,3 +60,5 @@ def main():
 
 
 
+if __name__ == "__main__":
+    main()
