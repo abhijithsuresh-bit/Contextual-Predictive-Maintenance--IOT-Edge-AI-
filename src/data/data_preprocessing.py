@@ -71,7 +71,7 @@ def save_data(df:pd.DataFrame , file_path):
     try:
         os.makedirs(os.path.dirname(file_path) , exist_ok= True)
 
-        df.to_csv(file_path)
+        df.to_csv(file_path , index= False)
 
         logging.info("Data Stored Succesfully")
 

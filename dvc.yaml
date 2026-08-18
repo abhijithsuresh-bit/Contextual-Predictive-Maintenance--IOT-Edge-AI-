@@ -22,9 +22,9 @@ stages:
       - data/preprocessed/y_test.csv
 
   model_building:
-    cmd: python src/data/model_building.py
+    cmd: python src/model/model_building.py
     deps:
-      - src/data.model_building.py
+      - src/model/model_building.py
       - data/preprocessed/X_train.csv
       - data/preprocessed/y_train.csv
 

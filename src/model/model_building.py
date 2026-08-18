@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 try:
     with open("params.yaml" , "r") as f:
-        params = yaml.load(f)
+        params = yaml.safe_load(f)
         logging.info("Params loaded successfully")
 
 except Exception as e:
@@ -30,12 +30,12 @@ def model_building(X_train_file_path , y_train_file_path , file_path):
         sm = SMOTE(random_state=42)
         X_train_res , y_train_res = sm.fit_resample(X_train , y_train)
 
-        model = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0,max_depth=1, random_state=0).fit(X_train_res, y_train_res)
+        model = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0,max_depth=1, random_state=0).fit(X_train_res, y_train_res.squeeze())
 
         os.makedirs(os.path.dirname(file_path) , exist_ok= True)
 
         with open(file_path , "wb") as f:
-            f.write(pickle.dump(model))
+            pickle.dump(model , f)
 
             logging.info("Model successfully saved")
 
@@ -52,9 +52,13 @@ def main():
         model_building(X_train_file_path , y_train_file_path , model_file_path)
 
         logging.info("Savved Sucessfully")
-        
+
     except Exception as e:
         logging.info(f"Error orrcured {e}")
+
+
+if __name__ == "__main__":
+    main()
 
 
 

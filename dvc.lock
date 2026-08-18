@@ -34,22 +34,42 @@ stages:
       size: 37
     - path: src/data/data_preprocessing.py
       hash: md5
-      md5: d2b7cbe6b0b40db5ce8f4011973e6525
-      size: 3084
+      md5: 966020c29a5f928e9f74aa0459417af7
+      size: 3099
     outs:
     - path: data/preprocessed/X_test.csv
       hash: md5
-      md5: a6d73cbc301ac7312ed9004c3eb291ed
-      size: 140753
+      md5: 37c98a459d0f71c3724de4d470e9537f
+      size: 130109
     - path: data/preprocessed/X_train.csv
       hash: md5
-      md5: 5691afca5d799ef2c627e0ea2ab3fae8
-      size: 576132
+      md5: 5ac4c86deeabcea61b98ca94e8fa1093
+      size: 538009
     - path: data/preprocessed/y_test.csv
       hash: md5
-      md5: 883a6c4d63f134adceb03d300eef93b7
-      size: 15779
+      md5: c6e926c40140a789061504b136d5a8a1
+      size: 6017
     - path: data/preprocessed/y_train.csv
       hash: md5
-      md5: 364dff01a0338573f60a40627654a610
-      size: 63147
+      md5: db37d7dd5b03694acdf66f4a2e328a6e
+      size: 24017
+  model_building:
+    cmd: python src/model/model_building.py
+    deps:
+    - path: data/preprocessed/X_train.csv
+      hash: md5
+      md5: 5ac4c86deeabcea61b98ca94e8fa1093
+      size: 538009
+    - path: data/preprocessed/y_train.csv
+      hash: md5
+      md5: db37d7dd5b03694acdf66f4a2e328a6e
+      size: 24017
+    - path: src/model/model_building.py
+      hash: md5
+      md5: a922491cc1b7ba4fe7180a47867284d6
+      size: 1786
+    outs:
+    - path: model/Xgboost_model.pkl
+      hash: md5
+      md5: eb2479e4e984f8383b4c94c8196b6c3d
+      size: 52476
