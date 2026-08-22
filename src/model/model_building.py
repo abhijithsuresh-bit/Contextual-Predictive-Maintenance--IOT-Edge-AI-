@@ -30,10 +30,10 @@ def model_building(X_train_file_path , y_train_file_path , file_path):
         sm = SMOTE(random_state=42)
         X_train_res , y_train_res = sm.fit_resample(X_train , y_train)
 
-        model = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0,max_depth=1, random_state=0).fit(X_train_res, y_train_res.squeeze())
+        model = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0,max_depth=10, random_state=42).fit(X_train_res, y_train_res.squeeze())
 
         os.makedirs(os.path.dirname(file_path) , exist_ok= True)
-
+        
         with open(file_path , "wb") as f:
             pickle.dump(model , f)
 

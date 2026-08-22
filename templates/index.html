@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Machine failure check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --enamel: #DDE2DC;
+    --card: #EFF2ED;
+    --ink: #141A16;
+    --soft: #5C675E;
+    --rule: #AEB8AC;
+    --fault: #B93221;
+    --safe: #2C6B57;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 32px 20px 64px;
+    background: var(--enamel);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet { max-width: 780px; margin: 0 auto; }
+
+  header {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 14px;
+    margin-bottom: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  h1 {
+    font-family: "Saira Condensed", sans-serif;
+    font-weight: 700;
+    font-size: clamp(28px, 5vw, 44px);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    line-height: .95;
+    margin: 0;
+  }
+  h1 em { font-style: normal; color: var(--soft); }
+  .stamp {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--soft);
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    padding: 26px;
+  }
+  .legend {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10.5px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--soft);
+    margin: 0 0 20px;
+  }
+
+  .seg { display: flex; border: 1px solid var(--ink); margin-bottom: 22px; }
+  .seg label { flex: 1; position: relative; border-right: 1px solid var(--rule); }
+  .seg label:last-child { border-right: 0; }
+  .seg input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .seg span {
+    display: block;
+    padding: 12px 6px;
+    text-align: center;
+    font-family: "Saira Condensed", sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--soft);
+    cursor: pointer;
+  }
+  .seg input:checked + span { background: var(--ink); color: var(--card); }
+  .seg input:focus-visible + span { outline: 2px solid var(--fault); outline-offset: -3px; }
+
+  .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px 22px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.wide { grid-column: 1 / -1; }
+  .field label { font-size: 13px; font-weight: 500; }
+  .field .hint {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10.5px;
+    letter-spacing: .08em;
+    color: var(--soft);
+  }
+  .input {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--rule);
+    background: #FBFCFA;
+  }
+  .input:focus-within { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+  .input input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    padding: 11px 12px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 15px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .input input:focus { outline: none; }
+  .input .unit {
+    display: flex;
+    align-items: center;
+    padding: 0 11px;
+    border-left: 1px solid var(--rule);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--soft);
+    background: #E7EBE5;
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1px solid var(--rule);
+  }
+  button {
+    font-family: "Saira Condensed", sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: 13px 26px;
+    border: 1px solid var(--ink);
+    cursor: pointer;
+  }
+  .primary { background: var(--ink); color: var(--card); flex: 1; }
+  .primary:hover { background: #000; }
+  .primary:disabled { opacity: .55; cursor: wait; }
+  .ghost { background: transparent; color: var(--ink); }
+  .ghost:hover { background: var(--enamel); }
+  button:focus-visible { outline: 2px solid var(--fault); outline-offset: 2px; }
+
+  .result {
+    margin-top: 20px;
+    border: 1px solid var(--rule);
+    border-left: 5px solid var(--soft);
+    background: var(--card);
+    padding: 20px 22px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .result[data-state="safe"] { border-left-color: var(--safe); }
+  .result[data-state="fault"] { border-left-color: var(--fault); }
+  .result[data-state="error"] { border-left-color: var(--fault); }
+  .result h2 {
+    font-family: "Saira Condensed", sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    margin: 0 0 3px;
+    line-height: 1;
+  }
+  .result[data-state="safe"] h2 { color: var(--safe); }
+  .result[data-state="fault"] h2,
+  .result[data-state="error"] h2 { color: var(--fault); }
+  .result p { margin: 0; font-size: 13px; color: var(--soft); max-width: 46ch; }
+  .result[data-state="error"] p {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .score {
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 600;
+    font-size: 34px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 620px) {
+    .fields { grid-template-columns: 1fr; }
+    .actions { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header>
+    <h1>Machine failure <em>check</em></h1>
+    <span class="stamp">AI4I 2020 &middot; Milling cell</span>
+  </header>
+
+  <div class="card">
+    <p class="legend">Product</p>
+
+    <div class="fields" style="margin-bottom:22px">
+      <div class="field wide">
+        <label for="product_id">Product ID</label>
+        <div class="input">
+          <input id="product_id" type="text" value="M14860" autocomplete="off">
+        </div>
+        <span class="hint">letter + serial, e.g. M14860</span>
+      </div>
+    </div>
+
+    <div class="seg">
+      <label><input type="radio" name="type" value="L"><span>Low</span></label>
+      <label><input type="radio" name="type" value="M" checked><span>Medium</span></label>
+      <label><input type="radio" name="type" value="H"><span>High</span></label>
+    </div>
+
+    <p class="legend">Sensor readings</p>
+
+    <div class="fields">
+      <div class="field">
+        <label for="air_temperature">Air temperature</label>
+        <div class="input">
+          <input id="air_temperature" type="number" step="0.1" value="298.1">
+          <span class="unit">K</span>
+        </div>
+        <span class="hint">295.3 &ndash; 304.5</span>
+      </div>
+
+      <div class="field">
+        <label for="process_temperature">Process temperature</label>
+        <div class="input">
+          <input id="process_temperature" type="number" step="0.1" value="308.6">
+          <span class="unit">K</span>
+        </div>
+        <span class="hint">305.7 &ndash; 313.8</span>
+      </div>
+
+      <div class="field">
+        <label for="rotational_speed">Rotational speed</label>
+        <div class="input">
+          <input id="rotational_speed" type="number" step="1" value="1551">
+          <span class="unit">rpm</span>
+        </div>
+        <span class="hint">1168 &ndash; 2886</span>
+      </div>
+
+      <div class="field">
+        <label for="torque">Torque</label>
+        <div class="input">
+          <input id="torque" type="number" step="0.1" value="42.8">
+          <span class="unit">Nm</span>
+        </div>
+        <span class="hint">3.8 &ndash; 76.6</span>
+      </div>
+
+      <div class="field">
+        <label for="tool_wear">Tool wear</label>
+        <div class="input">
+          <input id="tool_wear" type="number" step="1" value="108">
+          <span class="unit">min</span>
+        </div>
+        <span class="hint">0 &ndash; 253</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="check">Check machine</button>
+      <button type="button" class="ghost" id="reset">Reset</button>
+    </div>
+  </div>
+
+  <div class="result" id="result" data-state="idle">
+    <div>
+      <h2 id="verdict">Standing by</h2>
+      <p id="detail">Enter readings and run the check.</p>
+    </div>
+    <span class="score" id="score">&mdash;</span>
+  </div>
+
+</div>
+
+<script>
+// Must match the route in main.py.
+const ENDPOINT = "/predict_api";
+
+const DEFAULTS = {
+  product_id: "M14860",
+  air_temperature: 298.1,
+  process_temperature: 308.6,
+  rotational_speed: 1551,
+  torque: 42.8,
+  tool_wear: 108
+};
+
+const $ = (id) => document.getElementById(id);
+
+// Keys here must match the field names in Machine_failure.py EXACTLY.
+// Pydantic is case-sensitive, so "product_id" would be rejected as a
+// missing "Product_ID" with a 422 before the model ever runs.
+function buildPayload() {
+  return {
+    Product_ID: $("product_id").value.trim(),
+    Type: document.querySelector('input[name="type"]:checked').value,
+
+    Air_temperature_K: parseFloat($("air_temperature").value),
+    Process_temperature_K: parseFloat($("process_temperature").value),
+    Rotational_speed_rpm: parseInt($("rotational_speed").value, 10),
+    Torque_Nm: parseFloat($("torque").value),
+    Tool_wear_min: parseInt($("tool_wear").value, 10),
+
+    // Leakage flags - remove these five once the model is retrained
+    // without them. They are failure modes, not sensor inputs, so they
+    // are unknown at prediction time and always sent as 0.
+    TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0
+  };
+}
+
+// Catch empty or non-numeric fields client-side. parseFloat("") is NaN,
+// and JSON.stringify turns NaN into null, which produces a confusing 422.
+function validate(payload) {
+  if (!payload.Product_ID) return "Product ID is required.";
+  for (const [key, value] of Object.entries(payload)) {
+    if (typeof value === "number" && Number.isNaN(value)) {
+      return key.replace(/_/g, " ") + " must be a number.";
+    }
+  }
+  return null;
+}
+
+$("check").addEventListener("click", async () => {
+  const button = $("check");
+  const payload = buildPayload();
+
+  const problem = validate(payload);
+  if (problem) { fail(problem); return; }
+
+  button.disabled = true;
+  button.textContent = "Checking\u2026";
+
+  try {
+    const res = await fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const body = await res.text();
+    let data;
+    try {
+      data = JSON.parse(body);
+    } catch {
+      throw new Error(res.status + " \u2014 server returned HTML, not JSON. Check ENDPOINT.");
+    }
+
+    if (!res.ok) throw new Error(res.status + " \u2014 " + formatError(data.detail));
+
+    show(data);
+  } catch (err) {
+    fail(err.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Check machine";
+  }
+});
+
+// FastAPI validation errors arrive as a list of objects, not a string.
+function formatError(detail) {
+  if (!detail) return "no detail returned";
+  if (typeof detail === "string") return detail;
+  return detail
+    .map((d) => (d.loc || []).slice(1).join(".") + ": " + d.msg)
+    .join(" \u00b7 ");
+}
+
+function show(data) {
+  // main.py returns {machine_failure: 0|1, probability: float|null}.
+  // Reading the wrong key here fails silently: Boolean(undefined) is
+  // false, so every machine would report as clean.
+  const failure = Boolean(data.machine_failure);
+  const probability = data.probability;
+
+  $("result").dataset.state = failure ? "fault" : "safe";
+  $("verdict").textContent = failure ? "Failure likely" : "Running clean";
+  $("detail").textContent = failure
+    ? "Schedule an inspection before the next run."
+    : "Readings sit inside the normal envelope.";
+
+  // == null catches both null and undefined. Strict === undefined would
+  // let a JSON null through and render it as "0.0%".
+  $("score").textContent = probability == null
+    ? (failure ? "FAIL" : "OK")
+    : (probability * 100).toFixed(1) + "%";
+}
+
+function fail(message) {
+  $("result").dataset.state = "error";
+  $("verdict").textContent = "Request failed";
+  $("detail").textContent = message;
+  $("score").textContent = "\u2014";
+  console.error("Prediction request failed:", message);
+}
+
+$("reset").addEventListener("click", () => {
+  Object.entries(DEFAULTS).forEach(([id, v]) => ($(id).value = v));
+  document.querySelector('input[name="type"][value="M"]').checked = true;
+  $("result").dataset.state = "idle";
+  $("verdict").textContent = "Standing by";
+  $("detail").textContent = "Enter readings and run the check.";
+  $("score").textContent = "\u2014";
+});
+</script>
+</body>
+</html>

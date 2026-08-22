@@ -30,3 +30,14 @@ stages:
 
     outs:
       - model/Xgboost_model.pkl
+
+  model_evaluation:
+    cmd: python src/model/model_evaluation.py
+    deps:
+      - src/model/model_evaluation.py
+      - data/preprocessed/X_test.csv
+      - data/preprocessed/y_test.csv
+      - model/Xgboost_model.pkl
+    outs:
+      - evaluation/evaluation_report.json
+

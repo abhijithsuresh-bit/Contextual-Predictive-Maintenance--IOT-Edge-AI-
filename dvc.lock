@@ -34,17 +34,17 @@ stages:
       size: 37
     - path: src/data/data_preprocessing.py
       hash: md5
-      md5: 966020c29a5f928e9f74aa0459417af7
-      size: 3099
+      md5: d07e51bbf92890aafd0bfff672df6100
+      size: 3363
     outs:
     - path: data/preprocessed/X_test.csv
       hash: md5
-      md5: 37c98a459d0f71c3724de4d470e9537f
-      size: 130109
+      md5: 0447620c65be5ad59e2f550e915427a0
+      size: 131072
     - path: data/preprocessed/X_train.csv
       hash: md5
-      md5: 5ac4c86deeabcea61b98ca94e8fa1093
-      size: 538009
+      md5: 2ebc9a987a0ef64128e6fcca8295647a
+      size: 539275
     - path: data/preprocessed/y_test.csv
       hash: md5
       md5: c6e926c40140a789061504b136d5a8a1
@@ -58,18 +58,42 @@ stages:
     deps:
     - path: data/preprocessed/X_train.csv
       hash: md5
-      md5: 5ac4c86deeabcea61b98ca94e8fa1093
-      size: 538009
+      md5: 2ebc9a987a0ef64128e6fcca8295647a
+      size: 539275
     - path: data/preprocessed/y_train.csv
       hash: md5
       md5: db37d7dd5b03694acdf66f4a2e328a6e
       size: 24017
     - path: src/model/model_building.py
       hash: md5
-      md5: a922491cc1b7ba4fe7180a47867284d6
-      size: 1786
+      md5: 4bae4db8c702071d5e097e644c9931c6
+      size: 1796
     outs:
     - path: model/Xgboost_model.pkl
       hash: md5
-      md5: eb2479e4e984f8383b4c94c8196b6c3d
-      size: 52476
+      md5: 81db368bf8efb7f01bd8565e6a5bf0bd
+      size: 1939311
+  model_evaluation:
+    cmd: python src/model/model_evaluation.py
+    deps:
+    - path: data/preprocessed/X_test.csv
+      hash: md5
+      md5: 0447620c65be5ad59e2f550e915427a0
+      size: 131072
+    - path: data/preprocessed/y_test.csv
+      hash: md5
+      md5: c6e926c40140a789061504b136d5a8a1
+      size: 6017
+    - path: model/Xgboost_model.pkl
+      hash: md5
+      md5: 81db368bf8efb7f01bd8565e6a5bf0bd
+      size: 1939311
+    - path: src/model/model_evaluation.py
+      hash: md5
+      md5: 7981fa7021375f73a57c71d95a66c0f6
+      size: 1623
+    outs:
+    - path: evaluation/evaluation_report.json
+      hash: md5
+      md5: 34d3a57f4204b419be090fab41d9f0d0
+      size: 709

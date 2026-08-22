@@ -3,7 +3,7 @@ import pandas as pd
 import logging
 import pickle
 import json
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report , accuracy_score
 
 logging.basicConfig(
     level= logging.INFO,
@@ -23,12 +23,12 @@ def model_evaluation(X_test_path , y_test_path , model_path , evalation_json_pat
 
         pred = model.predict(X_test)
 
-        classification_repo = classification_report(y_true= y_test , y_pred= pred , output_dict= True)
+        classification_repo = classification_report(y_true= y_test , y_pred= pred , output_dict=True)
 
         os.makedirs(os.path.dirname(evalation_json_path) , exist_ok=True)
 
         with open(evalation_json_path , "w")as f:
-            json.dump(classification_repo , f)
+            json.dump(classification_repo , f , indent= 4)
 
     except Exception as e:
         print(f"Error Occured {e}")
@@ -48,7 +48,8 @@ def main():
         print(f"Error Occured {e}")
 
 
-
+if __name__ == "__main__":
+    main()
 
 
         

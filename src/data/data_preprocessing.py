@@ -2,6 +2,7 @@ import os
 import logging
 import yaml
 import pandas as pd
+import pickle
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import TargetEncoder
@@ -51,11 +52,16 @@ def split_data(X , y , test_size ):
     return X_train , X_test , y_train , y_test
 
 
-def converting_data_to_numeric(X_train , X_test , y_train , y_test):
+def converting_data_to_numeric(X_train , X_test , y_train , y_test , encoding_path):
     try:
         enc_auto = TargetEncoder(smooth="auto")
         X_train[["Product ID" , "Type"]] = enc_auto.fit_transform(X_train[["Product ID" , "Type"]] , y_train)
-        X_test[["Product ID" , "Type"]] = enc_auto.fit_transform(X_test[["Product ID" , "Type"]] , y_test)
+        X_test[["Product ID" , "Type"]] = enc_auto.transform(X_test[["Product ID" , "Type"]])
+
+        os.makedirs(os.path.dirname(encoding_path) , exist_ok= True)
+        with open(encoding_path , 'wb')as f:
+            pickle.dump(enc_auto , f)
+
 
         logging.info("Data Converted successfully")
 
@@ -91,7 +97,9 @@ def main():
 
         X_train , X_test , y_train , y_test = split_data(X , y , test_size= test_size)
 
-        X_train , X_test = converting_data_to_numeric(X_train , X_test , y_train , y_test)
+        enc_path = os.path.join("model" , "encoding.pkl")
+
+        X_train , X_test = converting_data_to_numeric(X_train , X_test , y_train , y_test , encoding_path= enc_path)
 
         file_path_X_train = os.path.join("data" , "preprocessed" , "X_train.csv")
         file_path_X_test = os.path.join("data" , "preprocessed" , "X_test.csv")
